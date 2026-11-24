@@ -2063,8 +2063,10 @@ static mii_ethernet_obj_t ethernet_obj;
             start = f"(const uint32_t *) (_{device})"
             end = f"(const uint32_t *)(_{device} + {size // 4})"
         else:
-            ram_externs.append(f"extern uint32_t {start};")
-            start = "&" + start
+            # As Zephyr's linker-defs.h declares section symbols, which it does
+            # for z_mapped_end on MMU targets.
+            ram_externs.append(f"extern char {start}[];")
+            start = f"(const uint32_t *){start}"
         ram_list.append(f"    {start}, {end}, // {path}")
     ram_list = "\n".join(ram_list)
     ram_externs = "\n".join(ram_externs)
