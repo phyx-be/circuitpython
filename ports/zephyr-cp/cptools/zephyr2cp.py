@@ -1690,8 +1690,14 @@ def zephyr_dts_to_cp_board(board_id, portdir, builddir, zephyrbuilddir, mpconfig
         elif len(candidates) == 1:
             main = candidates[0]
         else:
-            # A label picks the main instance.
-            for priority_label in (driverclass, f"zephyr_{driver}", f"arduino_{driver}"):
+            # A label picks the main instance: Zephyr's Arduino and Feather
+            # header labels (arduino_i2c, feather_serial, ...) among them.
+            for priority_label in (
+                driverclass,
+                f"zephyr_{driver}",
+                f"arduino_{driver}",
+                f"feather_{driver}",
+            ):
                 main = next((labels for labels in candidates if priority_label in labels), None)
                 if main is not None:
                     break
