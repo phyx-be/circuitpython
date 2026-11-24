@@ -377,6 +377,35 @@ CONNECTORS = {
 EXCEPTIONAL_DRIVERS = ["entropy", "gpio", "led"]
 
 
+def _connector_map_entries(node):
+    """
+    The pins of a connector's gpio-map.
+
+    Each gpio-map entry starts with the child specifier, whose first cell is
+    the header pin number, so a board can leave out the pins it does not
+    route to a GPIO.
+
+    Args:
+        node: Connector node (dtlib.Node) with a gpio-map property
+
+    Returns:
+        List of (header pin, GPIO controller label, GPIO pin) tuples
+    """
+    gpio_map = node.props["gpio-map"]
+    child_cells = 2
+    if "#gpio-cells" in node.props:
+        child_cells = node.props["#gpio-cells"].to_num()
+    entries = []
+    for offset, _, label in gpio_map._markers:
+        if not label:
+            continue
+        child = offset - 4 * child_cells
+        header_pin = int.from_bytes(gpio_map.value[child : child + 4], "big")
+        num = int.from_bytes(gpio_map.value[offset + 4 : offset + 8], "big")
+        entries.append((header_pin, label, num))
+    return entries
+
+
 def find_flash_devices(device_tree):
     """
     Find all flash devices from a device tree.
@@ -1211,26 +1240,20 @@ def zephyr_dts_to_cp_board(board_id, portdir, builddir, zephyrbuilddir, mpconfig
             if connector_pins is None:
                 logger.warning(f"Unsupported connector mapping compatible: {compatible[0]}")
             else:
-                i = 0
-                for offset, t, label in gpio_map._markers:
-                    if not label:
-                        continue
-                    num = int.from_bytes(gpio_map.value[offset + 4 : offset + 8], "big")
+                for i, label, num in _connector_map_entries(node):
                     if isinstance(connector_pins, dict):
                         pin_entry = connector_pins.get(str(i))
                         if pin_entry is None:
                             logger.debug(
                                 f"Connector {node.labels[0]} position {i} has no name; skipping"
                             )
-                            i += 1
                             continue
                     else:
                         if i >= len(connector_pins):
                             logger.warning(
-                                f"Connector mapping for {compatible[0]} has more pins than names; "
-                                f"stopping at {len(connector_pins)}"
+                                f"Connector mapping for {compatible[0]} has no name for pin {i}"
                             )
-                            break
+                            continue
                         pin_entry = connector_pins[i]
                     if (label, num) not in board_names:
                         board_names[(label, num)] = []
@@ -1238,7 +1261,6 @@ def zephyr_dts_to_cp_board(board_id, portdir, builddir, zephyrbuilddir, mpconfig
                         board_names[(label, num)].extend(pin_entry)
                     else:
                         board_names[(label, num)].append(pin_entry)
-                    i += 1
         if "gpio-leds" in compatible:
             for led in node.nodes:
                 led = node.nodes[led]

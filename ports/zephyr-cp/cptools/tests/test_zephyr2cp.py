@@ -26,6 +26,7 @@ from zephyr2cp import (
     STEMMA_I2C_PINS,
     add_toml_pin_names,
     _board_i2c_buses,
+    _connector_map_entries,
     _fastest_first,
     _named_pins,
     _standard_bus_pins,
@@ -1010,3 +1011,46 @@ class TestTomlStatusDotstar:
     def test_with_status_neopixel_raises(self):
         with pytest.raises(RuntimeError, match="both STATUS_NEOPIXEL and a status DotStar"):
             _toml_status_dotstar({**self.DOTSTAR, "STATUS_NEOPIXEL": "NEOPIXEL"}, self.BOARD_NAMES)
+
+
+class TestConnectorMapEntries:
+    """Test suite for _connector_map_entries function."""
+
+    DTS = """
+/dts-v1/;
+
+/ {{
+    gpio0: gpio@0 {{
+        reg = <0x0 0x100>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    }};
+
+    gpio1: gpio@100 {{
+        reg = <0x100 0x100>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    }};
+
+    header: connector {{
+        compatible = "adafruit-feather-header";
+        #gpio-cells = <2>;
+        gpio-map-mask = <0xffffffff 0xffffffc0>;
+        gpio-map-pass-thru = <0 0x3f>;
+        gpio-map = {entries};
+    }};
+}};
+"""
+
+    def entries(self, gpio_map):
+        dt = parse_dts_string(self.DTS.format(entries=gpio_map))
+        return _connector_map_entries(dt.get_node("/connector"))
+
+    def test_dense_map(self):
+        result = self.entries("<0 0 &gpio0 26 0>, <1 0 &gpio0 27 0>, <2 0 &gpio1 3 0>")
+        assert result == [(0, "gpio0", 26), (1, "gpio0", 27), (2, "gpio1", 3)]
+
+    def test_sparse_map_keeps_header_pins(self):
+        """Pins without a GPIO (an analog-only A0, a missing D4) are left out."""
+        result = self.entries("<1 0 &gpio0 3 0>, <12 0 &gpio1 7 0>, <13 0 &gpio1 6 0>")
+        assert result == [(1, "gpio0", 3), (12, "gpio1", 7), (13, "gpio1", 6)]
