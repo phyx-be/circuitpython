@@ -969,6 +969,7 @@ async def build_circuitpython():  # noqa: C901
     source_files.append(builddir / f"translations-{translation}.c")
     # These files don't include unique QSTRs. They just need to be compiled.
     source_files.append(portdir / "supervisor" / "flash.c")
+    source_files.append(portdir / "supervisor" / "disk.c")
     source_files.append(portdir / "supervisor" / "port.c")
     source_files.append(portdir / "supervisor" / "serial.c")
     source_files.append(srcdir / "lib" / "oofatfs" / "ff.c")

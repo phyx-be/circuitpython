@@ -20,6 +20,9 @@
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
 
+// A board that keeps CIRCUITPY on a disk has it in disk.c instead.
+#if !DT_HAS_CHOSEN(circuitpython_circuitpy_disk)
+
 // The filesystem partition node label comes from the Adaboot fork's layout
 // dtsi (and the native simulator layouts). Prefer the explicit fatfs/littlefs
 // names, then fall back to the older circuitpy_partition name some boards use,
@@ -670,3 +673,5 @@ mp_uint_t supervisor_flash_write_blocks(const uint8_t *src, uint32_t block, uint
     k_mutex_unlock(&_mutex);
     return 0; // success
 }
+
+#endif // !DT_HAS_CHOSEN(circuitpython_circuitpy_disk)
