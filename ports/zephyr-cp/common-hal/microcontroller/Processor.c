@@ -13,6 +13,7 @@
 
 #include <sys/types.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/drivers/clock_control.h>
 #include <zephyr/drivers/hwinfo.h>
 
 #if defined(CONFIG_WIFI)
@@ -53,6 +54,16 @@ float common_hal_mcu_processor_get_temperature(void) {
 uint32_t common_hal_mcu_processor_get_frequency(void) {
     #if DT_NODE_HAS_PROP(CPU_NODE, clock_frequency)
     return DT_PROP(CPU_NODE, clock_frequency);
+    #elif DT_NODE_HAS_PROP(CPU_NODE, clocks) && DT_PHA_HAS_CELL(CPU_NODE, clocks, clkid) && \
+    defined(CONFIG_CLOCK_CONTROL)
+    // The clock controller knows the rate the boot loader set (Allwinner T113)
+    uint32_t rate = 0;
+    if (clock_control_get_rate(DEVICE_DT_GET(DT_CLOCKS_CTLR(CPU_NODE)),
+        (clock_control_subsys_t)(uintptr_t)DT_CLOCKS_CELL(CPU_NODE, clkid), &rate) == 0 &&
+        rate != 0) {
+        return rate;
+    }
+    return CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC;
     #elif DT_NODE_HAS_PROP(CPU_NODE, clocks)
     // No clock-frequency on the cpu node (nRF54L), so use the clock that drives it.
     return DT_PROP_OR(DT_CLOCKS_CTLR(CPU_NODE), clock_frequency, CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC);
