@@ -8,6 +8,9 @@
 
 #if CONFIG_HWINFO_NRF || CONFIG_HWINFO_RPI_PICO
 #define COMMON_HAL_MCU_PROCESSOR_UID_LENGTH 8
+#elif CONFIG_HWINFO_SUNXI_SID
+// The chip ID of the Allwinner D1/T113 (tess-zephyr)
+#define COMMON_HAL_MCU_PROCESSOR_UID_LENGTH 16
 #else
 // Extra long and the remainder will be left empty. Will print out the actual length.
 #define COMMON_HAL_MCU_PROCESSOR_UID_LENGTH 32
