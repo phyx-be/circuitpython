@@ -18,6 +18,8 @@ typedef struct {
     const struct device *device;
     struct display_capabilities capabilities;
     enum display_pixel_format pixel_format;
+    // What display_set_brightness() was last given, -1 without brightness control
+    mp_float_t brightness;
     uint64_t last_refresh_call;
     uint16_t native_frames_per_second;
     uint16_t native_ms_per_frame;
