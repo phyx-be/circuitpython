@@ -15,6 +15,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/hci_vs.h>
+#include <zephyr/kernel.h>
 #include <zephyr/settings/settings.h>
 
 #include "py/gc.h"
@@ -292,6 +293,27 @@ static void scan_timeout_cb(void) {
     shared_module_bleio_scanresults_set_done(active_scan_results, true);
     active_scan_results = NULL;
 }
+
+// Zephyr ends a timed scan through the controller (the scan duration of the
+// extended scan, or not at all on the legacy one), and some controllers carry
+// on scanning (the ESP32-C3's): the scan results would then never be done. So
+// the adapter times the scan too, and stops it from the VM, as stop_scan()
+// does, when the timeout passes. The controller's timeout, when it comes, is
+// the same end.
+static void scan_timeout_background(void *data) {
+    bleio_adapter_obj_t *self = data;
+    if (self->scan_results != NULL && !shared_module_bleio_scanresults_get_done(self->scan_results)) {
+        common_hal_bleio_adapter_stop_scan(self);
+    }
+}
+
+static background_callback_t scan_timeout_background_cb = {scan_timeout_background, NULL};
+
+static void scan_timer_expired(struct k_timer *timer) {
+    background_callback_add_core(&scan_timeout_background_cb);
+}
+
+static K_TIMER_DEFINE(scan_timer, scan_timer_expired, NULL);
 
 // We need to disassemble the full advertisement packet because the Zephyr takes
 // in each ADT in an array.
@@ -729,10 +751,16 @@ mp_obj_t common_hal_bleio_adapter_start_scan(bleio_adapter_obj_t *self, uint8_t 
         raise_zephyr_error(err);
     }
 
+    if (timeout_units != 0) {
+        scan_timeout_background_cb.data = self;
+        k_timer_start(&scan_timer, K_MSEC((uint32_t)timeout_units * 10U), K_NO_WAIT);
+    }
+
     return MP_OBJ_FROM_PTR(self->scan_results);
 }
 
 void common_hal_bleio_adapter_stop_scan(bleio_adapter_obj_t *self) {
+    k_timer_stop(&scan_timer);
     if (self->scan_results == NULL) {
         return;
     }
