@@ -8,10 +8,16 @@ manifest:
       url: https://github.com/tannewt/ext_nRF_hw_models
       revision: 41cb69cd08848cc31e91ed62d01d397511981919
       path: modules/bsim_hw_models/nrf_hw_models
+    # Adaboot with the Tess layout and its RAM-load fixes, branch tess
     - name: mcuboot
-      url: https://github.com/adafruit/adaboot
-      revision: 587d61102408c6dc0cef1db180b9516d16d59e68
+      url: https://github.com/phyx-be/adaboot
+      revision: 2b22fb4c09293b398cea8b0bb5041429ac2f7634
       path: bootloader/mcuboot
+    # The Allwinner T113 SoC, the Tess board and their drivers (Phyx Tess)
+    - name: tess-zephyr
+      url: git@github.com:bertouttier/tess-zephyr.git
+      revision: 5dc87675f1808c6db9604a2aaf8dd377cc321379
+      path: modules/tess-zephyr
     - name: zephyr
       url: https://github.com/adafruit/zephyr
       revision: 87f27e4e1ce528367de5936cd4ee9fa4c32d42a8

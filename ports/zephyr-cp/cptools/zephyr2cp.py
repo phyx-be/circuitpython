@@ -49,6 +49,14 @@ MANUAL_COMPAT_TO_DRIVER = {
     # The driver lives in drivers/spi/spi_nxp_lpspi/, so the generated table
     # names it "spi/spi_nxp_lpspi", which is not a busio class.
     "nxp_lpspi": "spi",
+    # Drivers of Zephyr modules outside the Zephyr tree, which the generated
+    # table does not see: the Allwinner T113 ones of tess-zephyr (Phyx Tess).
+    "allwinner_sun20i_d1_uart": "serial",
+    "allwinner_sun6i_a31_i2c": "i2c",
+    "allwinner_sun50i_r329_spi": "spi",
+    "allwinner_sun20i_d1_gpio": "gpio",
+    "allwinner_sun20i_d1_pwm": "pwm",
+    "allwinner_sun20i_d1_musb": "usb/udc",
 }
 
 # These are controllers, not the flash devices themselves.

@@ -1,0 +1,22 @@
+/*
+ * Tess (Phyx): Allwinner T113-S3, 128 MB DDR3, Feather pins. The SoC, the
+ * board and their drivers come from the tess-zephyr module.
+ *
+ * The Zephyr console stays on UART3, the debug header, which is not a
+ * Feather pin.
+ */
+#include "../../../app.overlay"
+
+/ {
+	chosen {
+		/*
+		 * CIRCUITPY is the first partition of the SD card, which also
+		 * holds the boot chain (tess-zephyr's scripts/mksdcard.py
+		 * --fat-sectors makes the partition). The settings and NVM
+		 * partitions are on the card too, in front of it: Adaboot's
+		 * layout (bootloader/mcuboot/dts/phyx/tess.dtsi) maps them.
+		 */
+		circuitpython,circuitpy-disk = &sd_card;
+	};
+
+};

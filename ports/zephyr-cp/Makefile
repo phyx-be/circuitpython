@@ -190,6 +190,10 @@ $(BUILD)/firmware.exe: $(BUILD)/zephyr-cp/zephyr/zephyr.elf
 $(BUILD)/firmware.rps: $(BUILD)/zephyr-cp/zephyr/zephyr.elf
 	cp $(BUILD)/zephyr-cp/zephyr/zephyr.rps $@
 
+# Legacy U-Boot image, for a U-Boot SPL to load (Allwinner T113)
+$(BUILD)/firmware.uimg: $(BUILD)/zephyr-cp/zephyr/zephyr.elf
+	cp $(BUILD)/zephyr-cp/zephyr/zephyr.uimg $@
+
 flash: $(BUILD)/zephyr-cp/zephyr/zephyr.elf
 	west flash -d $(BUILD)
 
