@@ -1,4 +1,6 @@
 CIRCUITPY_BUILD_EXTENSIONS = ["uf2"]
+# The Raspberry Pi Touch Display 2 on the DSI connector (tess-zephyr's shield)
+SHIELDS = ["rpi_touch_display_2"]
 # pid.codes test IDs, until Phyx has its own
 USB_VID=0x1209
 USB_PID=0x0001

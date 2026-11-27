@@ -16,7 +16,7 @@ manifest:
     # The Allwinner T113 SoC, the Tess board and their drivers (Phyx Tess)
     - name: tess-zephyr
       url: git@github.com:bertouttier/tess-zephyr.git
-      revision: 5dc87675f1808c6db9604a2aaf8dd377cc321379
+      revision: 2271cc04dc692b8e9d6d402a95026fd48af39272
       path: modules/tess-zephyr
     - name: zephyr
       url: https://github.com/adafruit/zephyr
