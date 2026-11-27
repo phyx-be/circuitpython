@@ -603,6 +603,9 @@ void common_hal_zephyr_display_display_construct_from_device(zephyr_display_disp
         common_hal_zephyr_display_display_set_rotation(self, rotation);
     }
 
+    // Full brightness to start with, as other displays; Zephyr cannot read it back
+    self->brightness = display_set_brightness(self->device, 255) == 0 ? (mp_float_t)1.0 : -1;
+
     (void)display_blanking_off(self->device);
 
     displayio_lvgl_init();
@@ -627,14 +630,15 @@ uint16_t common_hal_zephyr_display_display_get_height(zephyr_display_display_obj
 }
 
 mp_float_t common_hal_zephyr_display_display_get_brightness(zephyr_display_display_obj_t *self) {
-    (void)self;
-    return -1;
+    return self->brightness;
 }
 
 bool common_hal_zephyr_display_display_set_brightness(zephyr_display_display_obj_t *self, mp_float_t brightness) {
-    (void)self;
-    (void)brightness;
-    return false;
+    if (display_set_brightness(self->device, (uint8_t)(brightness * 255 + (mp_float_t)0.5)) != 0) {
+        return false;
+    }
+    self->brightness = brightness;
+    return true;
 }
 
 

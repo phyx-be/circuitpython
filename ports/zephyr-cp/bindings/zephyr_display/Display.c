@@ -197,7 +197,7 @@ MP_PROPERTY_GETSET(zephyr_display_display_auto_refresh_obj,
 //|     brightness: float
 //|     """The brightness of the display as a float. 0.0 is off and 1.0 is full brightness.
 //|
-//|     .. note:: Zephyr displays do not implement brightness control yet, so reading or
+//|     .. note:: On a display whose Zephyr driver has no brightness control, reading or
 //|         writing this raises `RuntimeError`."""
 static mp_obj_t zephyr_display_display_obj_get_brightness(mp_obj_t self_in) {
     zephyr_display_display_obj_t *self = native_display(self_in);
