@@ -381,7 +381,10 @@ config ZCP_MBEDTLS_TLS
 	bool "mbedtls TLS support for the ssl module"
 	default y if WIFI || NET_L2_ETHERNET || NET_NATIVE_OFFLOADED_SOCKETS
 	# Client-side TLS as required by shared-module/ssl: TLS 1.2 with the
-	# ECDHE-RSA key exchange, X.509 certificates and PEM parsing. Selecting
+	# ECDHE-RSA and ECDHE-ECDSA key exchanges (servers with RSA or ECDSA
+	# certificates, as with ESP-IDF's defaults), server name indication
+	# (CDNs pick the certificate by name), X.509 certificates and PEM
+	# parsing. Selecting
 	# Zephyr's MBEDTLS_CIPHERSUITE_* config instead would also force RSA-PSS
 	# and RSA key-pair generation, which a TLS client never needs and which
 	# don't fit flash-tight boards. A board can still
@@ -389,6 +392,8 @@ config ZCP_MBEDTLS_TLS
 	select MBEDTLS_SSL_PROTO_TLS1_2
 	select MBEDTLS_X509_CRT_PARSE_C
 	select MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
+	select MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
+	select MBEDTLS_SSL_SERVER_NAME_INDICATION
 	select MBEDTLS_PEM_PARSE_C
 	# RNG: prefer the smaller external-RNG backend whenever the board has a
 	# CSPRNG driver (Zephyr's default), and only select the legacy entropy +
