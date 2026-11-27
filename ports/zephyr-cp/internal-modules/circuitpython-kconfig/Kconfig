@@ -396,6 +396,28 @@ config ZCP_MBEDTLS_TLS
 	select MBEDTLS_ENTROPY_C if !MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
 	select MBEDTLS_CTR_DRBG_C if !MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
 
+# TLS 1.3 for the ssl module, on top of TLS 1.2: the client offers both and
+# servers mostly pick 1.3. Its (EC)DHE key exchange (the ephemeral mode), and
+# RSA-PSS, the signature TLS 1.3 requires of servers with RSA certificates.
+# Session tickets stay off: mbedtls then discards the ones servers send after
+# the handshake. Off by default for the flash it takes; boards with room turn
+# it on in board.conf.
+config ZCP_MBEDTLS_TLS1_3
+	bool "TLS 1.3 for the ssl module"
+	depends on ZCP_MBEDTLS_TLS
+	select MBEDTLS_SSL_PROTO_TLS1_3
+	select MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_EPHEMERAL_ENABLED
+	# Offers the rsa_pss_rsae signature schemes, without which servers with
+	# RSA certificates have none to sign their TLS 1.3 handshake with
+	select MBEDTLS_X509_RSASSA_PSS_SUPPORT
+
+config PSA_WANT_ALG_RSA_PSS
+	default y if ZCP_MBEDTLS_TLS1_3
+
+# Not used by a TLS client, but MBEDTLS_X509_RSASSA_PSS_SUPPORT requires it
+config PSA_WANT_ALG_RSA_OAEP
+	default y if ZCP_MBEDTLS_TLS1_3
+
 # The PSA crypto wants needed to verify real-world certificate chains: certs
 # signed with SHA-384/512 (e.g. Sectigo "R"-series CAs) and ECDSA signatures,
 # plus the curve/cipher selection matching ports/espressif/sdkconfig so web
