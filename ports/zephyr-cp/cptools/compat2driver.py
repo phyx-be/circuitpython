@@ -163,6 +163,7 @@ COMPAT_TO_DRIVER = {
     # bluetooth/hci
     "ambiq_bt_hci_spi": "bluetooth/hci",
     "espressif_esp32_bt_hci": "bluetooth/hci",
+    "espressif_esp_hosted_mcu_bt_hci": "bluetooth/hci",
     "infineon_bless_hci": "bluetooth/hci",
     "infineon_bt_hci_uart": "bluetooth/hci",
     "infineon_cyw208xx_hci": "bluetooth/hci",
@@ -1459,6 +1460,9 @@ COMPAT_TO_DRIVER = {
     #
     # misc/devmux
     "zephyr_devmux": "misc/devmux",
+    #
+    # misc/esp_hosted_mcu
+    "espressif_esp_hosted_mcu": "misc/esp_hosted_mcu",
     #
     # misc/ethos_u
     "arm_ethos_u": "misc/ethos_u",
@@ -3019,6 +3023,9 @@ COMPAT_TO_DRIVER = {
     #
     # wifi/esp_hosted
     "espressif_esp_hosted": "wifi/esp_hosted",
+    #
+    # wifi/esp_hosted_mcu
+    "espressif_esp_hosted_mcu_wifi": "wifi/esp_hosted_mcu",
     #
     # wifi/eswifi
     "inventek_eswifi": "wifi/eswifi",
