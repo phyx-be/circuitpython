@@ -13,7 +13,9 @@
 
 mp_obj_t common_hal_wifi_network_get_ssid(wifi_network_obj_t *self) {
     const char *cstr = (const char *)self->scan_result.ssid;
-    return mp_obj_new_str(cstr, self->scan_result.ssid_length);
+    // Up to a NUL: some drivers count the terminating NUL in ssid_length
+    // (esp_hosted_mcu passes on the coprocessor's strnlen() + 1).
+    return mp_obj_new_str(cstr, strnlen(cstr, self->scan_result.ssid_length));
 }
 
 mp_obj_t common_hal_wifi_network_get_bssid(wifi_network_obj_t *self) {
